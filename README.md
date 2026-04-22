@@ -1,4 +1,42 @@
-# BHS-HeadSwap
+# BHS Ultimate HeadSwap & FaceSwap (Pinokio Launcher)
 
-A pinokio script for https://github.com/Hanzyusuf/BHS-HeadSwap.git
+A 1-click installer and launcher for **BHS Ultimate HeadSwap & FaceSwap**, built for [Pinokio](https://pinokio.computer/).
 
+## Features
+
+- **Flux 2 Klein 4B/9B High-Fidelity Swap**: Cutting-edge face and head swapping using the powerful Flux models. 
+- **Qwen Image Edit 2509/2511**: Deep integration with Qwen Image Edit for flawless lighting, expression, and structural matching.
+- **VisoMaster Fast Face Swap**: Includes blazing fast image and video swapping via the VisoMaster engine.
+- **Multiple AI Models Supported**: Comes out of the box with:
+  - Inswapper128
+  - SimSwap512
+  - GhostFace (v1, v2, v3)
+  - CSCS
+- **Advanced Tools Auto-Cloned**: Automatically downloads and installs dependencies from `BFS-Best-Face-Swap`, `head_swap_qwen_edit`, `SwapAnyHead`, `VisoMaster`, and `DeepFaceLab`.
+
+## Installation
+
+1. Download and install [Pinokio](https://pinokio.computer/).
+2. Paste the URL of this repository into the Pinokio discover tab and click download.
+3. Click **Install**. The script will automatically:
+   - Create isolated virtual environments.
+   - Clone all required sub-repositories and GitHub/HuggingFace assets.
+   - Download the necessary ONNX and Safetensors models (via `git lfs` and direct downloads).
+
+## Usage
+
+1. Click **Start** to launch the Gradio Web UI.
+2. The UI will start locally at `http://127.0.0.1:7860`.
+3. Select your desired tool from the tabs:
+   - **Flux/Qwen High-Fidelity (Head Swap)**: For photorealistic, high-quality structure and expression replication.
+   - **Viso Fast Swap (Image)**: For rapid, single-image face swapping.
+   - **Viso Fast Swap (Video)**: For smooth, frame-by-frame video face swapping.
+
+## Troubleshooting
+
+- If you encounter any issues during installation, check the **logs** folder in the Pinokio UI.
+- Ensure your system meets the requirements for running PyTorch with CUDA (NVIDIA GPU recommended).
+- If the Flux 9B model fails to load, ensure you have the necessary Hugging Face access tokens or fallback to the 4B model as configured.
+
+---
+*Based on BFS - Best Face Swap, VisoMaster, and SwapAnyHead.*
