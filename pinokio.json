@@ -1,5 +1,5 @@
 {
-  "title": "BHS-HeadSwap",
+  "title": "BHS Ultimate HeadSwap & FaceSwap",
   "description": "",
   "icon": "icon.png",
   "links": [
@@ -12,5 +12,8 @@
       "value": "https://github.com/Hanzyusuf/BHS-HeadSwap"
     }
   ],
-  "posts": []
+  "posts": [],
+  "plugin": {
+    "menu": []
+  }
 }
