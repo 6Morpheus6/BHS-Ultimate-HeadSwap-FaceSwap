@@ -2,6 +2,15 @@
   "title": "BHS-HeadSwap",
   "description": "",
   "icon": "icon.png",
-  "links": [],
+  "links": [
+    {
+      "title": "github",
+      "value": "https://github.com/Hanzyusuf"
+    },
+    {
+      "title": "website",
+      "value": "https://github.com/Hanzyusuf/BHS-HeadSwap"
+    }
+  ],
   "posts": []
 }
