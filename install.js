@@ -14,7 +14,9 @@ module.exports = {
       params: {
         message: [
           "git lfs install",
-          "git clone https://huggingface.co/Alissonerdx/BFS-Best-Face-Swap"
+          "git clone https://huggingface.co/Alissonerdx/BFS-Best-Face-Swap",
+          "cd BFS-Best-Face-Swap",
+          "git lfs pull"
         ],
         path: "app"
       },
@@ -24,7 +26,9 @@ module.exports = {
       method: "shell.run",
       params: {
         message: [
-          "git clone https://huggingface.co/olesheva/head_swap_qwen_edit"
+          "git clone https://huggingface.co/olesheva/head_swap_qwen_edit",
+          "cd head_swap_qwen_edit",
+          "git lfs pull"
         ],
         path: "app"
       },
@@ -69,6 +73,17 @@ module.exports = {
       }
     },
     {
+      "when": "{{gpu === 'nvidia'}}",
+      "method": "shell.run",
+      "params": {
+        "venv": "env",
+        "path": "app",
+        "message": [
+          "uv pip install tensorrt==10.6.0 tensorrt-cu12_libs==10.6.0 tensorrt-cu12_bindings==10.6.0 --extra-index-url https://pypi.nvidia.com"
+        ]
+      }
+    },
+    {
       method: "script.start",
       params: {
         uri: "torch.js",
@@ -83,6 +98,9 @@ module.exports = {
       params: {
         venv: "env",
         path: "app",
+        env: {
+          HF_TOKEN: "{{envs.HF_TOKEN}}"
+        },
         message: [
           "python download_flux.py"
         ]
