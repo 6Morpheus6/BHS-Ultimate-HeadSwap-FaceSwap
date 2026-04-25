@@ -3,56 +3,43 @@ module.exports = {
     {
       method: "shell.run",
       params: {
-        message: [
-          "git clone https://github.com/Hanzyusuf/BHS-HeadSwap.git app",
-        ]
+        message: "git clone https://github.com/Hanzyusuf/BHS-HeadSwap.git app",
       },
-      when: "{{!exists('app')}}"
     },
     {
       method: "shell.run",
       params: {
+        path: "app/BFS-Best-Face-Swap",
         message: [
           "git lfs install",
           "git clone https://huggingface.co/Alissonerdx/BFS-Best-Face-Swap",
-          "cd BFS-Best-Face-Swap",
           "git lfs pull"
-        ],
-        path: "app"
+        ]
       },
-      when: "{{!exists('app/BFS-Best-Face-Swap')}}"
     },
     {
       method: "shell.run",
       params: {
+        path: "app/head_swap_qwen_edit",
         message: [
           "git clone https://huggingface.co/olesheva/head_swap_qwen_edit",
-          "cd head_swap_qwen_edit",
           "git lfs pull"
-        ],
-        path: "app"
+        ]
       },
-      when: "{{!exists('app/head_swap_qwen_edit')}}"
     },
     {
       method: "shell.run",
       params: {
-        message: [
-          "git clone https://github.com/HumanAIGC/SwapAnyHead.git"
-        ],
-        path: "app"
+        path: "app",
+        message: "git clone https://github.com/HumanAIGC/SwapAnyHead.git"
       },
-      when: "{{!exists('app/SwapAnyHead')}}"
     },
     {
       method: "shell.run",
       params: {
-        message: [
-          "git clone https://github.com/visomaster/VisoMaster.git"
-        ],
-        path: "app"
+        path: "app",
+        message: "git clone https://github.com/visomaster/VisoMaster.git"
       },
-      when: "{{!exists('app/VisoMaster')}}"
     },
     {
       method: "fs.download",
@@ -73,12 +60,12 @@ module.exports = {
       }
     },
     {
-      "when": "{{gpu === 'nvidia'}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "env",
-        "path": "app",
-        "message": [
+      when: "{{gpu === 'nvidia'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: [
           "uv pip install tensorrt==10.6.0 tensorrt-cu12_libs==10.6.0 tensorrt-cu12_bindings==10.6.0 --extra-index-url https://pypi.nvidia.com"
         ]
       }
