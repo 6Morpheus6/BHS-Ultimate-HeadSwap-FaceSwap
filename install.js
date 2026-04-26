@@ -24,6 +24,20 @@ module.exports = {
       },
     },
     {
+      method: "fs.copy",
+      params: {
+        src: "main.py",
+        dest: "app/main.py"
+      },
+    },
+    {
+      method: "fs.copy",
+      params: {
+        src: "viso_bridge.py",
+        dest: "app/viso_bridge.py"
+      },
+    },
+    {
       when: "{{!exists('app/DeepFaceLab-master.zip')}}",
       method: "fs.download",
       params: {
