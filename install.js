@@ -9,27 +9,6 @@ module.exports = {
     {
       method: "shell.run",
       params: {
-        path: "app/BFS-Best-Face-Swap",
-        message: [
-          "git lfs install",
-          "git clone https://huggingface.co/Alissonerdx/BFS-Best-Face-Swap",
-          "git lfs pull"
-        ]
-      },
-    },
-    {
-      method: "shell.run",
-      params: {
-        path: "app/head_swap_qwen_edit",
-        message: [
-          "git clone https://huggingface.co/olesheva/head_swap_qwen_edit",
-          "git lfs pull"
-        ]
-      },
-    },
-    {
-      method: "shell.run",
-      params: {
         path: "app",
         message: "git clone https://github.com/HumanAIGC/SwapAnyHead.git"
       },
@@ -42,12 +21,12 @@ module.exports = {
       },
     },
     {
+      when: "{{!exists('app/DeepFaceLab-master.zip')}}",
       method: "fs.download",
       params: {
         url: "https://github.com/iperov/DeepFaceLab/archive/refs/heads/master.zip",
         dir: "app"
       },
-      when: "{{!exists('app/DeepFaceLab-master.zip')}}"
     },
     {
       method: "shell.run",
@@ -81,16 +60,25 @@ module.exports = {
       }
     },
     {
-      method: "shell.run",
+      method: "hf.download",
       params: {
-        venv: "env",
-        path: "app",
-        env: {
-          HF_TOKEN: "{{envs.HF_TOKEN}}"
-        },
-        message: [
-          "python download_flux.py"
-        ]
+        "path":"app",
+        "_": [ "Alissonerdx/BFS-Best-Face-Swap" ],
+        "local-dir": "BFS-Best-Face-Swap"
+      }
+    },
+    {
+      method: "hf.download",
+      params: {
+        "path":"app",
+        "_": [ "olesheva/head_swap_qwen_edit" ],
+        "local-dir": "head_swap_qwen_edit"
+      }
+    },
+    {
+      method: "hf.download",
+      params: {
+        "_": [ "tonera/FLUX.2-klein-4B-fp8-diffusers" ]
       }
     },
     {
@@ -98,9 +86,7 @@ module.exports = {
       params: {
         venv: "../../env",
         path: "app/VisoMaster",
-        message: [
-          "python download_models.py"
-        ]
+        message: "python download_models.py"
       }
     }
   ]
