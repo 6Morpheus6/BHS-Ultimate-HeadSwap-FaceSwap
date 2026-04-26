@@ -37,7 +37,7 @@ module.exports = {
         venv: "env",
         path: "app",
         message: [
-          "uv pip install -r requirements.txt"
+          "uv pip install -r ../requirements.txt"
         ]
       }
     },
@@ -87,7 +87,7 @@ module.exports = {
     {
       method: "shell.run",
       params: {
-        venv: "../../env",
+        venv: "../env",
         path: "app/VisoMaster",
         message: "python download_models.py"
       }
