@@ -8,7 +8,9 @@ module.exports = {
       method: "shell.run",
       params: {
         venv: "env",
-        env: { },
+        env: {
+          TF_ENABLE_ONEDNN_OPTS: "0"
+         },
         path: "app",
         message: [
           "python main.py",
