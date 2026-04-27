@@ -1,66 +1,49 @@
 module.exports = {
+  requires: {
+    bundle: "ai",
+  },
   run: [
     {
       method: "shell.run",
       params: {
-        message: [
-          "git clone https://github.com/Hanzyusuf/BHS-HeadSwap.git app",
-        ]
+        message: "git clone https://github.com/Hanzyusuf/BHS-HeadSwap.git app",
       },
-      when: "{{!exists('app')}}"
     },
     {
       method: "shell.run",
       params: {
-        message: [
-          "git lfs install",
-          "git clone https://huggingface.co/Alissonerdx/BFS-Best-Face-Swap",
-          "cd BFS-Best-Face-Swap",
-          "git lfs pull"
-        ],
-        path: "app"
+        path: "app",
+        message: "git clone https://github.com/HumanAIGC/SwapAnyHead.git"
       },
-      when: "{{!exists('app/BFS-Best-Face-Swap')}}"
     },
     {
       method: "shell.run",
       params: {
-        message: [
-          "git clone https://huggingface.co/olesheva/head_swap_qwen_edit",
-          "cd head_swap_qwen_edit",
-          "git lfs pull"
-        ],
-        path: "app"
+        path: "app",
+        message: "git clone https://github.com/visomaster/VisoMaster.git"
       },
-      when: "{{!exists('app/head_swap_qwen_edit')}}"
     },
     {
-      method: "shell.run",
+      method: "fs.copy",
       params: {
-        message: [
-          "git clone https://github.com/HumanAIGC/SwapAnyHead.git"
-        ],
-        path: "app"
+        src: "main.py",
+        dest: "app/main.py"
       },
-      when: "{{!exists('app/SwapAnyHead')}}"
     },
     {
-      method: "shell.run",
+      method: "fs.copy",
       params: {
-        message: [
-          "git clone https://github.com/visomaster/VisoMaster.git"
-        ],
-        path: "app"
+        src: "viso_bridge.py",
+        dest: "app/viso_bridge.py"
       },
-      when: "{{!exists('app/VisoMaster')}}"
     },
     {
+      when: "{{!exists('app/DeepFaceLab-master.zip')}}",
       method: "fs.download",
       params: {
         url: "https://github.com/iperov/DeepFaceLab/archive/refs/heads/master.zip",
         dir: "app"
       },
-      when: "{{!exists('app/DeepFaceLab-master.zip')}}"
     },
     {
       method: "shell.run",
@@ -68,17 +51,17 @@ module.exports = {
         venv: "env",
         path: "app",
         message: [
-          "uv pip install -r requirements.txt"
+          "uv pip install -r ../requirements.txt"
         ]
       }
     },
     {
-      "when": "{{gpu === 'nvidia'}}",
-      "method": "shell.run",
-      "params": {
-        "venv": "env",
-        "path": "app",
-        "message": [
+      when: "{{gpu === 'nvidia'}}",
+      method: "shell.run",
+      params: {
+        venv: "env",
+        path: "app",
+        message: [
           "uv pip install tensorrt==10.6.0 tensorrt-cu12_libs==10.6.0 tensorrt-cu12_bindings==10.6.0 --extra-index-url https://pypi.nvidia.com"
         ]
       }
@@ -94,26 +77,33 @@ module.exports = {
       }
     },
     {
-      method: "shell.run",
+      method: "hf.download",
       params: {
-        venv: "env",
-        path: "app",
-        env: {
-          HF_TOKEN: "{{envs.HF_TOKEN}}"
-        },
-        message: [
-          "python download_flux.py"
-        ]
+        "path":"app",
+        "_": [ "Alissonerdx/BFS-Best-Face-Swap" ],
+        "local-dir": "BFS-Best-Face-Swap"
+      }
+    },
+    {
+      method: "hf.download",
+      params: {
+        "path":"app",
+        "_": [ "olesheva/head_swap_qwen_edit" ],
+        "local-dir": "head_swap_qwen_edit"
+      }
+    },
+    {
+      method: "hf.download",
+      params: {
+        "_": [ "tonera/FLUX.2-klein-4B-fp8-diffusers" ]
       }
     },
     {
       method: "shell.run",
       params: {
-        venv: "../../env",
+        venv: "../env",
         path: "app/VisoMaster",
-        message: [
-          "python download_models.py"
-        ]
+        message: "python download_models.py"
       }
     }
   ]
