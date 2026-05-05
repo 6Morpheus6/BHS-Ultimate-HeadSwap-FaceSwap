@@ -6,7 +6,7 @@ from PIL import Image
 import gradio as gr
 from diffusers import Flux2KleinPipeline
 from diffusers.quantizers.quantization_config import TorchAoConfig
-from viso_bridge import VisoBridge
+from viso_bridge import VisoBridge, RESTORER_CHOICES
 
 # Monkeypatch TorchAoConfig.from_dict to handle string quant_type
 original_from_dict = TorchAoConfig.from_dict
@@ -123,17 +123,30 @@ def flux_face_swap(
 
     return image, seed
 
-def viso_swap_image(source_img, target_img, model_name):
+def viso_swap_image(source_img, target_img, model_name, restorer_type, restorer_blend, fidelity_weight):
     v = get_viso()
-    return v.process_image(source_img, target_img, model_name)
+    return v.process_image(
+        source_img, target_img,
+        swapper_model=model_name,
+        restorer_type=restorer_type,
+        restorer_blend=int(restorer_blend),
+        fidelity_weight=float(fidelity_weight),
+    )
 
-def viso_swap_video(source_img, target_video, model_name, progress=gr.Progress()):
+def viso_swap_video(source_img, target_video, model_name, restorer_type, restorer_blend, fidelity_weight, progress=gr.Progress()):
     if source_img is None or target_video is None:
         raise gr.Error("Please provide both a source image and a target video!")
     
     v = get_viso()
     output_path = "output_video.mp4"
-    v.process_video(source_img, target_video, output_path, model_name, progress=progress)
+    v.process_video(
+        source_img, target_video, output_path,
+        swapper_model=model_name,
+        restorer_type=restorer_type,
+        restorer_blend=int(restorer_blend),
+        fidelity_weight=float(fidelity_weight),
+        progress=progress,
+    )
     return output_path
 
 # UI
@@ -193,15 +206,32 @@ with gr.Blocks(title="BHS Ultimate HeadSwap") as demo:
                     viso_model = gr.Dropdown(
                         choices=["Inswapper128", "SimSwap512", "GhostFace-v1", "GhostFace-v2", "GhostFace-v3", "CSCS"],
                         value="Inswapper128",
-                        label="ONNX Model"
+                        label="ONNX Swap Model"
                     )
+                    with gr.Accordion("Enhancement (improves face quality)", open=False):
+                        viso_restorer = gr.Dropdown(
+                            choices=RESTORER_CHOICES,
+                            value="GFPGAN-v1.4",
+                            label="Face Restorer",
+                            info="Run a restorer on each swapped face to sharpen details"
+                        )
+                        viso_blend = gr.Slider(
+                            minimum=0, maximum=100, step=1, value=80,
+                            label="Restorer Blend %",
+                            info="100 = full restorer, 0 = swap only"
+                        )
+                        viso_fidelity = gr.Slider(
+                            minimum=0.0, maximum=1.0, step=0.05, value=0.75,
+                            label="Fidelity Weight (CodeFormer)",
+                            info="Higher = more faithful to input identity"
+                        )
                     viso_btn = gr.Button("Fast Swap Image", variant="primary")
                 with gr.Column():
                     viso_output = gr.Image(label="Result")
             
             viso_btn.click(
                 fn=viso_swap_image,
-                inputs=[viso_source, viso_target, viso_model],
+                inputs=[viso_source, viso_target, viso_model, viso_restorer, viso_blend, viso_fidelity],
                 outputs=[viso_output]
             )
 
@@ -213,15 +243,32 @@ with gr.Blocks(title="BHS Ultimate HeadSwap") as demo:
                     viso_v_model = gr.Dropdown(
                         choices=["Inswapper128", "SimSwap512", "GhostFace-v1", "GhostFace-v2", "GhostFace-v3", "CSCS"],
                         value="Inswapper128",
-                        label="ONNX Model"
+                        label="ONNX Swap Model"
                     )
+                    with gr.Accordion("Enhancement (improves face quality)", open=False):
+                        viso_v_restorer = gr.Dropdown(
+                            choices=RESTORER_CHOICES,
+                            value="GFPGAN-v1.4",
+                            label="Face Restorer",
+                            info="Run a restorer on each swapped face per frame"
+                        )
+                        viso_v_blend = gr.Slider(
+                            minimum=0, maximum=100, step=1, value=80,
+                            label="Restorer Blend %",
+                            info="100 = full restorer, 0 = swap only"
+                        )
+                        viso_v_fidelity = gr.Slider(
+                            minimum=0.0, maximum=1.0, step=0.05, value=0.75,
+                            label="Fidelity Weight (CodeFormer)",
+                            info="Higher = more faithful to input identity"
+                        )
                     viso_v_btn = gr.Button("Fast Swap Video", variant="primary")
                 with gr.Column():
                     viso_v_output = gr.Video(label="Result Video")
             
             viso_v_btn.click(
                 fn=viso_swap_video,
-                inputs=[viso_v_source, viso_v_target, viso_v_model],
+                inputs=[viso_v_source, viso_v_target, viso_v_model, viso_v_restorer, viso_v_blend, viso_v_fidelity],
                 outputs=[viso_v_output]
             )
 

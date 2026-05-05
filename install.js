@@ -38,11 +38,10 @@ module.exports = {
       },
     },
     {
-      when: "{{!exists('app/DeepFaceLab-master.zip')}}",
-      method: "fs.download",
+      method: "fs.copy",
       params: {
-        url: "https://github.com/iperov/DeepFaceLab/archive/refs/heads/master.zip",
-        dir: "app"
+        src: "face_swappers.py",
+        dest: "app/VisoMaster/app/processors/face_swappers.py"
       },
     },
     {
