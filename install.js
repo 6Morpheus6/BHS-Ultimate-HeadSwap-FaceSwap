@@ -87,14 +87,19 @@ module.exports = {
       method: "hf.download",
       params: {
         "path":"app",
-        "_": [ "olesheva/head_swap_qwen_edit" ],
-        "local-dir": "head_swap_qwen_edit"
+        "_": [ "olesheva/head_swap_qwen_edit" ]
       }
     },
     {
       method: "hf.download",
       params: {
         "_": [ "tonera/FLUX.2-klein-4B-fp8-diffusers" ]
+      }
+    },
+    {
+      method: "hf.download",
+      params: {
+        "_": [ "rootlocalghost/FLUX.2-klein-9B-FP8" ]
       }
     },
     {
