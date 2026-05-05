@@ -1,4 +1,5 @@
 import os
+import gc
 import random
 import torch
 import numpy as np
@@ -41,8 +42,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 dtype = torch.bfloat16
 MAX_SEED = np.iinfo(np.int32).max
 
-# Models
-REPO_ID_9B = "tonera/FLUX.2-klein-4B-fp8-diffusers" # Temporary fallback since 9B diffusers isn't readily ungated
+# Model
 REPO_ID_4B = "tonera/FLUX.2-klein-4B-fp8-diffusers"
 
 LORA_DIR = os.path.join(os.path.dirname(__file__), "BFS-Best-Face-Swap")
@@ -123,6 +123,32 @@ def flux_face_swap(
 
     return image, seed
 
+def unload_flux_model():
+    global pipe, current_lora, current_model
+    if pipe is not None:
+        print("Unloading Flux model...")
+        pipe.to("cpu") 
+        del pipe
+        pipe = None
+        current_lora = None
+        current_model = None
+        
+        gc.collect()
+        torch.cuda.empty_cache()
+        torch.cuda.ipc_collect()
+        print("VRAM cleared.")
+
+def unload_viso_engine():
+    global viso
+    if viso is not None:
+        print("Unloading Viso Engine...")
+        del viso
+        viso = None
+        
+        gc.collect()
+        torch.cuda.empty_cache()
+        print("Viso VRAM cleared.")
+
 def viso_swap_image(source_img, target_img, model_name, restorer_type, restorer_blend, fidelity_weight):
     v = get_viso()
     return v.process_image(
@@ -169,12 +195,11 @@ with gr.Blocks(title="BHS Ultimate HeadSwap") as demo:
     gr.Markdown("# 🧬 BHS Ultimate HeadSwap & FaceSwap")
     
     with gr.Tabs():
-        with gr.TabItem("Flux/Qwen High-Fidelity (Head Swap)"):
+        with gr.TabItem("Flux High-Fidelity (Head Swap)") as flux_tab:
             with gr.Row():
                 with gr.Column():
                     flux_ref_face = gr.Image(label="Reference Face (Identity)", type="pil")
                     flux_target_img = gr.Image(label="Target Image (Body/Scene)", type="pil")
-                    flux_model_id = gr.Dropdown(choices=[REPO_ID_9B, REPO_ID_4B], value=REPO_ID_4B, label="Flux Model")
                     flux_lora = gr.Dropdown(choices=available_loras, value=default_lora, label="BFS LoRA")
                     flux_prompt = gr.Textbox(lines=5, value=FACE_SWAP_PROMPT, label="Prompt")
                     
@@ -194,11 +219,12 @@ with gr.Blocks(title="BHS Ultimate HeadSwap") as demo:
             
             flux_btn.click(
                 fn=flux_face_swap,
-                inputs=[flux_ref_face, flux_target_img, flux_model_id, flux_lora, flux_prompt, flux_seed, flux_rand_seed, flux_width, flux_height, flux_steps, flux_cfg],
+                inputs=[flux_ref_face, flux_target_img, gr.State(REPO_ID_4B), flux_lora, flux_prompt, flux_seed, flux_rand_seed, flux_width, flux_height, flux_steps, flux_cfg],
                 outputs=[flux_output, flux_seed_out]
             )
+            pass
 
-        with gr.TabItem("Viso Fast Swap (Image)"):
+        with gr.TabItem("Viso Fast Swap (Image)") as viso_image_tab:
             with gr.Row():
                 with gr.Column():
                     viso_source = gr.Image(label="Source Face", type="pil")
@@ -234,8 +260,9 @@ with gr.Blocks(title="BHS Ultimate HeadSwap") as demo:
                 inputs=[viso_source, viso_target, viso_model, viso_restorer, viso_blend, viso_fidelity],
                 outputs=[viso_output]
             )
+            pass
 
-        with gr.TabItem("Viso Fast Swap (Video)"):
+        with gr.TabItem("Viso Fast Swap (Video)") as viso_video_tab:
             with gr.Row():
                 with gr.Column():
                     viso_v_source = gr.Image(label="Source Face", type="pil")
@@ -265,12 +292,31 @@ with gr.Blocks(title="BHS Ultimate HeadSwap") as demo:
                     viso_v_btn = gr.Button("Fast Swap Video", variant="primary")
                 with gr.Column():
                     viso_v_output = gr.Video(label="Result Video")
-            
+                    vram_status = gr.Textbox(visible=False)
             viso_v_btn.click(
                 fn=viso_swap_video,
                 inputs=[viso_v_source, viso_v_target, viso_v_model, viso_v_restorer, viso_v_blend, viso_v_fidelity],
                 outputs=[viso_v_output]
             )
+            pass
+
+    viso_image_tab.select(
+        fn=unload_flux_model,
+        inputs=[],
+        outputs=[vram_status]
+    )
+
+    viso_video_tab.select(
+        fn=unload_flux_model,
+        inputs=[],
+        outputs=[vram_status]
+    )
+
+    flux_tab.select(
+        fn=unload_viso_engine,
+        inputs=[],
+        outputs=[vram_status]
+    )
 
     gr.Markdown("---")
     gr.Markdown("Based on BFS - Best Face Swap & VisoMaster")
